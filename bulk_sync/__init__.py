@@ -6,7 +6,7 @@ from django.db import transaction
 logger = logging.getLogger(__name__)
 
 
-def bulk_sync(new_models, key_fields, filters, batch_size=None, fields=None):
+def bulk_sync(new_models, key_fields, filters, batch_size=None, fields=None, include_pk=False):
     """ Combine bulk create, update, and delete.  Make the DB match a set of in-memory objects.
 
     `new_models`: Django ORM objects that are the desired state.  They may or may not have `id` set.
@@ -44,7 +44,8 @@ def bulk_sync(new_models, key_fields, filters, batch_size=None, fields=None):
             if old_obj is None:
                 # This is a new object, so create it.
                 # Make sure the primary key field is clear.
-                new_obj.pk = None
+                if not include_pk:
+                    new_obj.pk = None
                 new_objs.append(new_obj)
             else:
                 new_obj.id = old_obj.id
